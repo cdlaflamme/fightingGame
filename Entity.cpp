@@ -112,34 +112,121 @@ class MainMenuController : public Entity{
 
 class Fighter : public Entity{
 	//abstract class for all fighters; provides health structure
-	public:
+	sf::Texture fighterTexture;
+	sf::Sprite fighterSprite;
+	sf::Clock stateClock; //time at which the current state started, used for animations
+	sf::Vector2f fighterPos;
+	int fighterState = 0;//0: idle, 1:moving, 2:damaged, 3:attacking
+	int spriteIndex = 0;//0: idle, 1:moving, 2:damaged, 3:attacking
 	
 	int health = 100; //percentage; assumed max of 100
 	
+	static const int sprite_x = 210; //tile size of single sprites in sprite sheet. used to split sheet
+	static const int sprite_y = 225;
 	
-	
-	/*
-	void Update() override {
-		//TODO logic, animation, drawing
-		
+	void setSpriteIndex(int i){
+		fighterSprite.setTextureRect(sf::IntRect(0, sprite_y*i, sprite_x, sprite_y));
+		spriteIndex = i;
 	}
-	*/
+	
+	public:
+	void takeDamage(int damage){
+		health -= damage;
+		//TODO animation, Iframes
+	}
+	int getHealth(){
+		return health;
+	}
+	
+	Fighter(int fighterID){
+		//set position
+		fighterPos.y = Game::SCREEN_Y-sprite_y-95; //TODO make these less magical; change starting position depending on which player it is
+		//fighterPos.y = 0;
+		//fighterPos.x = Game::SCREEN_X+100;
+		fighterPos.x = 0;
+		//load sprite sheet. TODO: make this more sophisticated? table of fighter names/texture paths somewhere? or make the filenames based on ID?
+		switch(fighterID){
+			case 0:
+				fighterTexture.loadFromFile("Assets/blueMan.png");
+				break;
+			case 1:
+				fighterTexture.loadFromFile("Assets/redMan.png");
+				break;
+		}
+		fighterSprite.setTexture(fighterTexture); //TODO scale everything based on window size...? do I even allow configurable window size?
+		//set initial sprite rectangle
+		setSpriteIndex(0);
+		Game::drawQ->add(fighterSprite, DrawLayers::stage);
+	}
+	
+	void Update() override {
+		//TODO integrate with the event queue? ideally we operate independent of framerate...?
+		//TODO input split? am I using gamepads or keyboard splitting??? something else???
+		
+		//input
+		bool left = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
+		bool right = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
+		
+		//movement
+		if (left^right){
+			if (fighterState==0){
+				stateClock.restart();
+				fighterState = 1;
+				setSpriteIndex(2);
+			}
+			if (left) fighterPos.x -= 2.5;
+			if (right)fighterPos.x += 2.5;
+			if (stateClock.getElapsedTime().asSeconds() > 0.3f){
+				stateClock.restart();
+				setSpriteIndex((spriteIndex==2?3:2)); //TODO mirror depending on direction
+			}
+		}
+		//idle
+		else {
+			if (fighterState!=0){
+				stateClock.restart();
+				fighterState = 0;
+				setSpriteIndex(0);				
+			}
+			if (stateClock.getElapsedTime().asSeconds() > 0.5f){
+				stateClock.restart();
+				setSpriteIndex(((spriteIndex==0)?1:0));
+			}
+		}
+		//attacking
+		/*
+		create a class with internal state variables and a big ol list of potential input sequences.
+		each fighter has an instance of this classs inside of it (or make the fighter class really fat?)
+		it has functions to receive inputs as they occur. it stores inputs and their timestamps (or at least the time since the previous input) in member variables.
+		when this class is instantiated, a pointer is pointed towards a function that should be used to update its state, either through a function pointer or a class instance with a function pointer member.
+		this function will be unique for each fighter, and will define the fighter's abilities completely.
+		based on the most recent N inputs, the times at which those inputs occured, and the curent time, it outputs a state and sprite index. probably also cares about whether an input or attack hit.
+		the above logic should only check the returned state to alter the fighter's position.
+		hitbox generation/calculation should also be based on the state. moves which have multiple hitbox stages, like sex kicks, will be represented with multiple fighter states.
+		how do we generate/calculate hitboxes? how do we attach a hitbox/hurtbox to a state? the above function should probably return a list of hitboxes (objects or number representations?).
+		perhaps the function should internalize all fighter-specific decisions: how much to move given a specific input, the sprite to change to, and the hitboxes to use this frame.
+		
+		overall: this class should effect the desired sprite, movement, and hitboxes output by the fighter-specific function which implements each fighter's specific mechanics.
+		*/
+		
+		fighterSprite.setPosition(fighterPos);
+	}
 	
 };
 
 class FightStage : public Entity{
 	sf::Texture stageTexture;
 	sf::Sprite stageSprite;
-	sf::Vector2u stageTextureSize;
 public:	
 	FightStage(int stageID){
 		//TODO change stage image based on chosen stage
 		//TODO how to handle boundaries?
 		//scrolling can be handled by a SFML View
 		stageTexture.loadFromFile("Assets/warrior_shrine.png");
-		stageTextureSize = stageTexture.getSize();
+		sf::Vector2u stageTextureSize = stageTexture.getSize();
 		stageSprite.setTexture(stageTexture);
-		stageSprite.setTextureRect(sf::IntRect(stageTextureSize.x/2 - Game::SCREEN_X/2, 0, Game::SCREEN_X, Game::SCREEN_Y));
+		//stageSprite.setTextureRect(sf::IntRect(stageTextureSize.x/2 - Game::SCREEN_X/2, 0, Game::SCREEN_X, Game::SCREEN_Y));
+		stageSprite.setScale((float)Game::SCREEN_X/(float)stageTextureSize.x, (float)Game::SCREEN_Y/(float)stageTextureSize.y);
 		
 		Game::drawQ->add(stageSprite, DrawLayers::background);
 	}

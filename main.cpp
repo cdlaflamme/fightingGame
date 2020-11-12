@@ -24,6 +24,15 @@ int main(){
 	
 	loadScene(SceneList::MainMenu);
 	
+	//TODO consider implementing a helpful pattern:
+	//sf::Clock clock;
+	//while (window.isOpen())
+	//{
+	//	sf::Time elapsed = clock.restart();
+	//	updateGame(elapsed);
+	//	...
+	//}
+	
 	while (window.isOpen()){
 		//list of entity iterator positions for entities that mark themselves for deletion.
 		std::list<std::list<Entity*>::iterator> delList;
@@ -39,6 +48,7 @@ int main(){
 		}
 		
 		//process events
+		//TODO consider having a global table maping keys/inputs to function pointers. Alternatively, have each entity process each event, with most entities ignoring most inputs
 		sf::Event event;
 		while (window.pollEvent(event)){
 			if (event.type == sf::Event::Closed)

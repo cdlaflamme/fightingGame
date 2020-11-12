@@ -22,8 +22,15 @@ int loadScene(SceneList::Scene scene){
 			break;
 			
 		case SceneList::FightScene:{
+			//instantiate stage
 			FightStage* stage = new FightStage(Game::stageID);
 			Game::entityList->push_back(stage);
+			
+			//instantiate fighters
+			Entity* leftFighter = new Fighter(0);
+			Game::entityList->push_back(leftFighter);
+			//instantiate controller?
+			
 		}
 		break;
 	}
