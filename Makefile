@@ -6,11 +6,16 @@ CXXFLAGS = -Wall $(include_flags) $(linking_flags)
 
 all: win_test.exe
 
+debug:
+	g++ -g main.cpp DrawQ.cpp LoadScene.cpp Entity.cpp Game.cpp -o win_test_debug.exe $(CXXFLAGS)
+
 clean:
 	del *.o
 
 win_test.exe: main.o DrawQ.o LoadScene.o Entity.o Game.o
 	g++ main.o DrawQ.o LoadScene.o Entity.o Game.o -o win_test.exe $(CXXFLAGS)
+	
+win_test_debug.exe:
 
 main.o: main.cpp
 DrawQ.o: DrawQ.cpp DrawQ.h

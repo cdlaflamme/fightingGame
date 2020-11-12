@@ -24,15 +24,17 @@ class DrawQ{
 	};
 	entry* layerHeads[DrawLayers::NUM_LAYERS] = {NULL};
 	
-	void clearQ();
 	
 	public:
+	void clear();
 	void add(sf::Drawable&, DrawLayers::Layer);
 	void add(sf::Drawable&, DrawLayers::Layer, int);
+	void remove(sf::Drawable&); //walks through the entire Q until the object is found :(
+	void remove(sf::Drawable&, DrawLayers::Layer); //walks through only the specified layer (makes things a little faster)
 	void drawToWindow(sf::RenderWindow&);
 	
 	~DrawQ(){
-		clearQ();
+		clear();
 	}
 };
 

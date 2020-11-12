@@ -16,16 +16,16 @@ and is given access to the entity list so it may find/interact with other entiti
 #include "Game.h"
 #include "Entity.h"
 
-class Entity {
+
+class Entity{
 public:
-	
 	bool deleteThis = false;
 	bool isEnabled = true;
+	
 	virtual void Update(){
 		//pass
-	};
+	}
 };
-
 
 //MenuController
 class MainMenuController : public Entity{
@@ -77,13 +77,14 @@ class MainMenuController : public Entity{
 			cursorSprite.setTexture(cursorTexture);
 			cursorSprite.setOrigin(35, -6);
 			cursorSprite.setPosition(playX, textY);
-		}
-		
-		
-		void Update() override {
+			
 			Game::drawQ->add(titleSprite, DrawLayers::background);
 			Game::drawQ->add(playText, DrawLayers::backstage);
 			Game::drawQ->add(quitText, DrawLayers::backstage);
+			Game::drawQ->add(cursorSprite, DrawLayers::stage);
+		}
+		
+		void Update() override {
 			
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
 				cursorSprite.setPosition(playX, textY);
@@ -93,9 +94,8 @@ class MainMenuController : public Entity{
 				cursorSprite.setPosition(quitX, textY);
 				cursorPos = 1;
 			}
-			Game::drawQ->add(cursorSprite, DrawLayers::stage);
 			
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)){
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
 				//play
 				if (cursorPos == 0){
 					deleteThis = true; //leave main menu
@@ -103,8 +103,7 @@ class MainMenuController : public Entity{
 				}
 				//quit
 				if (cursorPos == 1){
-					//TODO: has no access to window
-					//window.close();
+					Game::quit();
 				}
 			}
 		}
@@ -129,12 +128,11 @@ class Fighter : public Entity{
 };
 
 class FightStage : public Entity{
-	
 	sf::Texture stageTexture;
 	sf::Sprite stageSprite;
 	sf::Vector2u stageTextureSize;
-	
-	FightStage(int stageID = 0){
+public:	
+	FightStage(int stageID){
 		//TODO change stage image based on chosen stage
 		//TODO how to handle boundaries?
 		//scrolling can be handled by a SFML View
@@ -142,11 +140,12 @@ class FightStage : public Entity{
 		stageTextureSize = stageTexture.getSize();
 		stageSprite.setTexture(stageTexture);
 		stageSprite.setTextureRect(sf::IntRect(stageTextureSize.x/2 - Game::SCREEN_X/2, 0, Game::SCREEN_X, Game::SCREEN_Y));
+		
+		Game::drawQ->add(stageSprite, DrawLayers::background);
 	}
 	
 	void Update() override {
-		//draw stage
-		Game::drawQ->add(stageSprite, DrawLayers::background);
+		//pass
 	}
 };
 

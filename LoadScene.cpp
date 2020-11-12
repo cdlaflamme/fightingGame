@@ -4,7 +4,9 @@
 #include "DrawQ.h"
 
 int loadScene(SceneList::Scene scene){
-	//TODO clear entity list, put up loading screen
+	//TODO clear entity list/drawQ, put up loading screen
+	
+	Game::drawQ->clear();
 	
 	//load new scene
 	switch (scene){
@@ -19,10 +21,11 @@ int loadScene(SceneList::Scene scene){
 			
 			break;
 			
-		case SceneList::FightScene:
-			
-			break;
-			
+		case SceneList::FightScene:{
+			FightStage* stage = new FightStage(Game::stageID);
+			Game::entityList->push_back(stage);
+		}
+		break;
 	}
 	
 	return 0;

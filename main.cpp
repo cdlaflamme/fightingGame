@@ -25,22 +25,27 @@ int main(){
 	loadScene(SceneList::MainMenu);
 	
 	while (window.isOpen()){
-		
+		//list of entity iterator positions for entities that mark themselves for deletion.
+		std::list<std::list<Entity*>::iterator> delList;
 		//entity logic
-		for (std::list<Entity*>::iterator it = entityList.begin(); it != entityList.end(); ++it){
+		for (std::list<Entity*>::iterator it = entityList.begin(); it != entityList.end(); it++){
 			//for each entity:
 			if ((*it)->isEnabled) (*it)->Update();
-			if ((*it)->deleteThis) entityList.erase(it);
+			if ((*it)->deleteThis) delList.push_back(it);
+		}
+		//delete entities that marked themselves for deletion. doing this during the above loop corrupts the iterator. (holy type definitions, batman)
+		for (std::list<std::list<Entity*>::iterator>::iterator it = delList.begin(); it != delList.end(); it++){
+			entityList.erase((*it));
 		}
 		
 		//process events
 		sf::Event event;
 		while (window.pollEvent(event)){
 			if (event.type == sf::Event::Closed)
-				window.close();
+				Game::quit();
 			else if (event.type == sf::Event::KeyPressed){
 				if (event.key.code == sf::Keyboard::Escape)
-					window.close();
+					Game::quit();
 			}
 		}
 		

@@ -22,7 +22,12 @@ namespace Game {
 	
 	extern sf::RenderWindow *window;
 	extern DrawQ *drawQ;
-	extern std::list<Entity*> *entityList;	
+	extern std::list<Entity*> *entityList;
+	
+	extern int fighter_ids[2];
+	extern int stageID;
+	
+	void quit();
 }
 
 #endif

@@ -1,1 +1,0 @@
-g++ main.cpp DrawQ.cpp LoadScene.cpp Entity.cpp Game.cpp -o win_test.exe -Wall -DSFML_STATIC -I C:\mingw64\usr\SFML-2.5.0\include\ -L C:\mingw64\usr\SFML-2.5.0\lib\ -lsfml-graphics-s -lsfml-window-s -lsfml-audio-s -lsfml-system-s -lwinmm -lgdi32 -lopengl32 -lfreetype -lopenal32 -lflac -lvorbisenc -lvorbisfile -lvorbis -logg
