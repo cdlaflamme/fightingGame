@@ -4,7 +4,8 @@
 #ifndef DRAWQ_H
 #define DRAWQ_H
 
-#include "Game.h"
+#include <SFML/Graphics.hpp>
+
 
 namespace DrawLayers{
 	const int NUM_LAYERS = 5;
@@ -34,7 +35,5 @@ class DrawQ{
 		clearQ();
 	}
 };
-
-
 
 #endif

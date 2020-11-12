@@ -3,10 +3,9 @@
 #include "Game.h"
 #include "LoadScene.h" //for loading scenes :)
 #include "DrawQ.h" //for drawing queue
-#include "Entity.cpp" //for entity class
+#include "Entity.cpp" //for entity class; DO AT BOTTOM
 
 int main(){
-	
 	
 	//open the game window
 	sf::RenderWindow window(sf::VideoMode(Game::SCREEN_X, Game::SCREEN_Y),\

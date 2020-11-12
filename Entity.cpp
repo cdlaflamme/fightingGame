@@ -13,12 +13,8 @@ The entity is responsible for adding all its drawables to the drawing queue,
 and is given access to the entity list so it may find/interact with other entities.
 */
 
-#ifndef ENTITY_H
-#define ENTITY_H
-
 #include "Game.h"
-#include "DrawQ.h"
-#include "LoadScene.h"
+#include "Entity.h"
 
 class Entity {
 public:
@@ -57,7 +53,7 @@ class MainMenuController : public Entity{
 			cursorTexture.loadFromFile("Assets/Cursor.png");
 			
 			if (!titleFont.loadFromFile("Assets/Titillium/Titillium-Regular.otf")){
-				std::cout << "Error: Could not read text file.\n";
+				std::cout << "Error: Could not read font file.\n";
 			}
 			
 			//title screen image
@@ -154,4 +150,3 @@ class FightStage : public Entity{
 	}
 };
 
-#endif

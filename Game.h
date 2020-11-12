@@ -9,8 +9,8 @@
 #include <list>	//for entity list
 #include <iostream>
 
-class Entity;
-class DrawQ;
+#include "Entity.h"
+#include "DrawQ.h"
 
 namespace Game {
 	//values globally available
@@ -20,9 +20,9 @@ namespace Game {
 	const int SCREEN_X = 800;
 	const int SCREEN_Y = 600;
 	
-	sf::RenderWindow *window = NULL;
-	DrawQ *drawQ = NULL;
-	std::list<Entity*> *entityList = NULL;	
+	extern sf::RenderWindow *window;
+	extern DrawQ *drawQ;
+	extern std::list<Entity*> *entityList;	
 }
 
 #endif

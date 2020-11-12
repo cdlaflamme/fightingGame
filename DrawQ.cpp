@@ -14,6 +14,10 @@ void DrawQ::clearQ(){
 	}
 }
 
+void DrawQ::add(sf::Drawable &drawable, DrawLayers::Layer layer){
+	add(drawable, layer, 0);
+}
+
 void DrawQ::add(sf::Drawable &drawable, DrawLayers::Layer layer, int order=0){
 	entry* newEntry;	//the eventual destination of the drawable to add
 	entry* currentEntry; //iterator
