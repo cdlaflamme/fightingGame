@@ -17,8 +17,8 @@ win_test.exe: main.o DrawQ.o LoadScene.o Entity.o Game.o
 	
 win_test_debug.exe:
 
-main.o: main.cpp
+main.o: main.cpp Entity.cpp
 DrawQ.o: DrawQ.cpp DrawQ.h
-LoadScene.o: LoadScene.cpp LoadScene.h
-Entity.o: Entity.cpp Entity.h
+LoadScene.o: LoadScene.cpp LoadScene.h Entity.cpp
+Entity.o: Entity.cpp Entity.h DrawQ.h LoadScene.h Game.h
 Game.o: Game.cpp Game.h

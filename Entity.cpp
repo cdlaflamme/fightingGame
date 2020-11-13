@@ -15,14 +15,14 @@ and is given access to the entity list so it may find/interact with other entiti
 
 #include "Game.h"
 #include "Entity.h"
-
+#include "FighterFunctions.cpp"
 
 class Entity{
 public:
 	bool deleteThis = false;
 	bool isEnabled = true;
 	
-	virtual void Update(){
+	virtual void Update(EventList &eventList){
 		//pass
 	}
 };
@@ -84,33 +84,57 @@ class MainMenuController : public Entity{
 			Game::drawQ->add(cursorSprite, DrawLayers::stage);
 		}
 		
-		void Update() override {
-			
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
-				cursorSprite.setPosition(playX, textY);
-				cursorPos = 0;
-			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
-				cursorSprite.setPosition(quitX, textY);
-				cursorPos = 1;
-			}
-			
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
-				//play
-				if (cursorPos == 0){
-					deleteThis = true; //leave main menu
-					loadScene(SceneList::FightScene);
-				}
-				//quit
-				if (cursorPos == 1){
-					Game::quit();
+		void Update(EventList &eventList) override {
+			for (EventList::iterator it = eventList.begin(); it != eventList.end(); it++){
+				sf::Event event = *it;
+				if (event.type == sf::Event::KeyPressed){
+					if (event.key.code == sf::Keyboard::Left){
+						cursorSprite.setPosition(playX, textY);
+						cursorPos = 0;
+					}
+					else if (event.key.code == sf::Keyboard::Right){
+						cursorSprite.setPosition(quitX, textY);
+						cursorPos = 1;
+					}
+					else if (event.key.code == sf::Keyboard::Space){
+						//play
+						if (cursorPos == 0){
+							deleteThis = true; //leave main menu
+							loadScene(SceneList::FightScene);
+						}
+						//quit
+						if (cursorPos == 1){
+							Game::quit();
+						}
+					}
 				}
 			}
 		}
 };
 
+class FightStage : public Entity{
+	sf::Texture stageTexture;
+	sf::Sprite stageSprite;
+public:	
+	FightStage(int stageID){
+		//TODO change stage image based on chosen stage
+		//TODO how to handle boundaries?
+		//scrolling can be handled by a SFML View
+		stageTexture.loadFromFile("Assets/warrior_shrine.png");
+		sf::Vector2u stageTextureSize = stageTexture.getSize();
+		stageSprite.setTexture(stageTexture);
+		//stageSprite.setTextureRect(sf::IntRect(stageTextureSize.x/2 - Game::SCREEN_X/2, 0, Game::SCREEN_X, Game::SCREEN_Y));
+		stageSprite.setScale((float)Game::SCREEN_X/(float)stageTextureSize.x, (float)Game::SCREEN_Y/(float)stageTextureSize.y);
+		
+		Game::drawQ->add(stageSprite, DrawLayers::background);
+	}
+	
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Fighter : public Entity{
+	
 	//abstract class for all fighters; provides health structure
 	sf::Texture fighterTexture;
 	sf::Sprite fighterSprite;
@@ -118,6 +142,8 @@ class Fighter : public Entity{
 	sf::Vector2f fighterPos;
 	int fighterState = 0;//0: idle, 1:moving, 2:damaged, 3:attacking
 	int spriteIndex = 0;//0: idle, 1:moving, 2:damaged, 3:attacking
+	int gamepadID;
+	int playerNumber;
 	
 	int health = 100; //percentage; assumed max of 100
 	
@@ -138,12 +164,12 @@ class Fighter : public Entity{
 		return health;
 	}
 	
-	Fighter(int fighterID){
+	Fighter(int fighterID, bool left){
+		gamepadID = (left?0:1); //may need to change
+		playerNumber = (left?0:1);
 		//set position
-		fighterPos.y = Game::SCREEN_Y-sprite_y-95; //TODO make these less magical; change starting position depending on which player it is
-		//fighterPos.y = 0;
-		//fighterPos.x = Game::SCREEN_X+100;
-		fighterPos.x = 0;
+		fighterPos.y = Game::SCREEN_Y-sprite_y-95; //TODO make these less magical, maybe stage dependent?
+		fighterPos.x = (left?100:Game::SCREEN_X-sprite_x-100);
 		//load sprite sheet. TODO: make this more sophisticated? table of fighter names/texture paths somewhere? or make the filenames based on ID?
 		switch(fighterID){
 			case 0:
@@ -159,9 +185,8 @@ class Fighter : public Entity{
 		Game::drawQ->add(fighterSprite, DrawLayers::stage);
 	}
 	
-	void Update() override {
-		//TODO integrate with the event queue? ideally we operate independent of framerate...?
-		//TODO input split? am I using gamepads or keyboard splitting??? something else???
+	void Update(EventList &eventList) override {
+
 		
 		//input
 		bool left = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
@@ -213,26 +238,3 @@ class Fighter : public Entity{
 	}
 	
 };
-
-class FightStage : public Entity{
-	sf::Texture stageTexture;
-	sf::Sprite stageSprite;
-public:	
-	FightStage(int stageID){
-		//TODO change stage image based on chosen stage
-		//TODO how to handle boundaries?
-		//scrolling can be handled by a SFML View
-		stageTexture.loadFromFile("Assets/warrior_shrine.png");
-		sf::Vector2u stageTextureSize = stageTexture.getSize();
-		stageSprite.setTexture(stageTexture);
-		//stageSprite.setTextureRect(sf::IntRect(stageTextureSize.x/2 - Game::SCREEN_X/2, 0, Game::SCREEN_X, Game::SCREEN_Y));
-		stageSprite.setScale((float)Game::SCREEN_X/(float)stageTextureSize.x, (float)Game::SCREEN_Y/(float)stageTextureSize.y);
-		
-		Game::drawQ->add(stageSprite, DrawLayers::background);
-	}
-	
-	void Update() override {
-		//pass
-	}
-};
-

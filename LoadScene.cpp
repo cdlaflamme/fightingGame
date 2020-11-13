@@ -1,7 +1,7 @@
 //LoadScene.cpp
 #include "LoadScene.h"
-#include "Entity.cpp"
 #include "DrawQ.h"
+#include "Entity.cpp"
 
 int loadScene(SceneList::Scene scene){
 	//TODO clear entity list/drawQ, put up loading screen
@@ -27,8 +27,10 @@ int loadScene(SceneList::Scene scene){
 			Game::entityList->push_back(stage);
 			
 			//instantiate fighters
-			Entity* leftFighter = new Fighter(0);
+			Entity* leftFighter = new Fighter(0, true);
+			Entity* rightFighter = new Fighter(1, false);
 			Game::entityList->push_back(leftFighter);
+			Game::entityList->push_back(rightFighter);
 			//instantiate controller?
 			
 		}

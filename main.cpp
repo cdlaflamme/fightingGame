@@ -13,7 +13,7 @@ int main(){
 	
 	window.setFramerateLimit(Game::FRAMERATE);
 	
-	std::list<Entity*> entityList;
+	EntityList entityList;
 	DrawQ drawQ;
 	
 	Game::window = &window;
@@ -23,8 +23,10 @@ int main(){
 	//#############################
 	
 	loadScene(SceneList::MainMenu);
+	window.requestFocus();
 	
-	//TODO consider implementing a helpful pattern:
+	//TODO consider implementing the following pattern:
+	//for now, anything that cares about the time will handle its own clocks
 	//sf::Clock clock;
 	//while (window.isOpen())
 	//{
@@ -33,31 +35,38 @@ int main(){
 	//	...
 	//}
 	
+	EventList inputEvents;
+	
 	while (window.isOpen()){
-		//list of entity iterator positions for entities that mark themselves for deletion.
-		std::list<std::list<Entity*>::iterator> delList;
-		//entity logic
-		for (std::list<Entity*>::iterator it = entityList.begin(); it != entityList.end(); it++){
-			//for each entity:
-			if ((*it)->isEnabled) (*it)->Update();
-			if ((*it)->deleteThis) delList.push_back(it);
-		}
-		//delete entities that marked themselves for deletion. doing this during the above loop corrupts the iterator. (holy type definitions, batman)
-		for (std::list<std::list<Entity*>::iterator>::iterator it = delList.begin(); it != delList.end(); it++){
-			entityList.erase((*it));
-		}
-		
 		//process events
-		//TODO consider having a global table maping keys/inputs to function pointers. Alternatively, have each entity process each event, with most entities ignoring most inputs
 		sf::Event event;
+		
 		while (window.pollEvent(event)){
 			if (event.type == sf::Event::Closed)
 				Game::quit();
-			else if (event.type == sf::Event::KeyPressed){
-				if (event.key.code == sf::Keyboard::Escape)
-					Game::quit();
+			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape){
+				Game::quit();
+			}
+			else{
+				inputEvents.push_back(event); //is this a problem?
 			}
 		}
+		
+		//entity logic
+		//list of entity iterator positions for entities that mark themselves for deletion.
+		EntItList delList;
+		//update entities
+		for (EntityList::iterator it = entityList.begin(); it != entityList.end(); it++){
+			//for each entity:
+			if ((*it)->isEnabled) (*it)->Update(inputEvents);
+			if ((*it)->deleteThis) delList.push_back(it);
+		}
+		//delete entities that marked themselves for deletion. doing this during the above loop corrupts the iterator. (holy type definitions, batman)
+		for (EntItList::iterator it = delList.begin(); it != delList.end(); it++){
+			entityList.erase((*it));
+		}
+		
+
 		
 		//draw things
 		window.clear();

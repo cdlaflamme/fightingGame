@@ -1,0 +1,1 @@
+//FighterFunctions.cpp

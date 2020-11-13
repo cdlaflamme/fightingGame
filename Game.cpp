@@ -4,7 +4,7 @@
 
 sf::RenderWindow* Game::window = NULL;
 DrawQ* Game::drawQ = NULL;
-std::list<Entity*>* Game::entityList = NULL;
+EntityList* Game::entityList = NULL;
 
 int Game::fighter_ids[2] = {-1, -1};
 int Game::stageID = -1;

@@ -7,10 +7,15 @@
 #include <SFML/Window/Keyboard.hpp>
 
 #include <list>	//for entity list
-#include <iostream>
+#include <iostream> //for logging
+
+typedef std::list<sf::Event> EventList; //must do before including entity.h
 
 #include "Entity.h"
 #include "DrawQ.h"
+
+typedef std::list<Entity*> EntityList;
+typedef std::list<EntityList::iterator> EntItList;
 
 namespace Game {
 	//values globally available
@@ -22,7 +27,7 @@ namespace Game {
 	
 	extern sf::RenderWindow *window;
 	extern DrawQ *drawQ;
-	extern std::list<Entity*> *entityList;
+	extern EntityList *entityList;
 	
 	extern int fighter_ids[2];
 	extern int stageID;
