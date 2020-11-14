@@ -15,7 +15,7 @@ and is given access to the entity list so it may find/interact with other entiti
 
 #include "Game.h"
 #include "Entity.h"
-#include "FighterFunctions.cpp"
+#include "FighterModule.h"
 
 class Entity{
 public:
@@ -23,6 +23,10 @@ public:
 	bool isEnabled = true;
 	
 	virtual void Update(EventList &eventList){
+		//pass
+	}
+	
+	virtual void LateUpdate(EventList &eventList){
 		//pass
 	}
 };
@@ -128,22 +132,18 @@ public:
 		
 		Game::drawQ->add(stageSprite, DrawLayers::background);
 	}
-	
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Fighter : public Entity{
-	
-	//abstract class for all fighters; provides health structure
-	sf::Texture fighterTexture;
+	//class for all fighters; implements all common mechanics, leaving character-specific mechanics to FighterFunctions
 	sf::Sprite fighterSprite;
-	sf::Clock stateClock; //time at which the current state started, used for animations
 	sf::Vector2f fighterPos;
-	int fighterState = 0;//0: idle, 1:moving, 2:damaged, 3:attacking
-	int spriteIndex = 0;//0: idle, 1:moving, 2:damaged, 3:attacking
+	FighterModule *fighterModule;
+	FighterState currentState;
 	int gamepadID;
-	int playerNumber;
+	int playerID;
 	
 	int health = 100; //percentage; assumed max of 100
 	
@@ -152,7 +152,6 @@ class Fighter : public Entity{
 	
 	void setSpriteIndex(int i){
 		fighterSprite.setTextureRect(sf::IntRect(0, sprite_y*i, sprite_x, sprite_y));
-		spriteIndex = i;
 	}
 	
 	public:
@@ -163,78 +162,36 @@ class Fighter : public Entity{
 	int getHealth(){
 		return health;
 	}
+	FighterState getState(){
+		return currentState;
+	}
 	
 	Fighter(int fighterID, bool left){
+		fighterModule = createFighterModule(fighterID); ///XXX memory leak?
+		fighterSprite.setTexture(*(fighterModule->getTexture()));
 		gamepadID = (left?0:1); //may need to change
-		playerNumber = (left?0:1);
+		playerID = (left?0:1);
 		//set position
 		fighterPos.y = Game::SCREEN_Y-sprite_y-95; //TODO make these less magical, maybe stage dependent?
 		fighterPos.x = (left?100:Game::SCREEN_X-sprite_x-100);
-		//load sprite sheet. TODO: make this more sophisticated? table of fighter names/texture paths somewhere? or make the filenames based on ID?
-		switch(fighterID){
-			case 0:
-				fighterTexture.loadFromFile("Assets/blueMan.png");
-				break;
-			case 1:
-				fighterTexture.loadFromFile("Assets/redMan.png");
-				break;
-		}
-		fighterSprite.setTexture(fighterTexture); //TODO scale everything based on window size...? do I even allow configurable window size?
+
 		//set initial sprite rectangle
 		setSpriteIndex(0);
 		Game::drawQ->add(fighterSprite, DrawLayers::stage);
 	}
 	
 	void Update(EventList &eventList) override {
-
-		
-		//input
-		bool left = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
-		bool right = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
-		
-		//movement
-		if (left^right){
-			if (fighterState==0){
-				stateClock.restart();
-				fighterState = 1;
-				setSpriteIndex(2);
-			}
-			if (left) fighterPos.x -= 2.5;
-			if (right)fighterPos.x += 2.5;
-			if (stateClock.getElapsedTime().asSeconds() > 0.3f){
-				stateClock.restart();
-				setSpriteIndex((spriteIndex==2?3:2)); //TODO mirror depending on direction
-			}
-		}
-		//idle
-		else {
-			if (fighterState!=0){
-				stateClock.restart();
-				fighterState = 0;
-				setSpriteIndex(0);				
-			}
-			if (stateClock.getElapsedTime().asSeconds() > 0.5f){
-				stateClock.restart();
-				setSpriteIndex(((spriteIndex==0)?1:0));
-			}
-		}
-		//attacking
-		/*
-		create a class with internal state variables and a big ol list of potential input sequences.
-		each fighter has an instance of this classs inside of it (or make the fighter class really fat?)
-		it has functions to receive inputs as they occur. it stores inputs and their timestamps (or at least the time since the previous input) in member variables.
-		when this class is instantiated, a pointer is pointed towards a function that should be used to update its state, either through a function pointer or a class instance with a function pointer member.
-		this function will be unique for each fighter, and will define the fighter's abilities completely.
-		based on the most recent N inputs, the times at which those inputs occured, and the curent time, it outputs a state and sprite index. probably also cares about whether an input or attack hit.
-		the above logic should only check the returned state to alter the fighter's position.
-		hitbox generation/calculation should also be based on the state. moves which have multiple hitbox stages, like sex kicks, will be represented with multiple fighter states.
-		how do we generate/calculate hitboxes? how do we attach a hitbox/hurtbox to a state? the above function should probably return a list of hitboxes (objects or number representations?).
-		perhaps the function should internalize all fighter-specific decisions: how much to move given a specific input, the sprite to change to, and the hitboxes to use this frame.
-		
-		overall: this class should effect the desired sprite, movement, and hitboxes output by the fighter-specific function which implements each fighter's specific mechanics.
-		*/
-		
+		//update state based on recent input
+		currentState = fighterModule->getNextState(eventList);
+		//set sprite
+		setSpriteIndex(currentState.spriteIndex);
+		//move fighter
+		fighterPos += currentState.movement;
 		fighterSprite.setPosition(fighterPos);
+	}
+	
+	void LateUpdate(EventList &eventList) override {
+		//TODO hitbox logic; happens in lateupdate so every fighter has a chance to update their state before this occurs
 	}
 	
 };
