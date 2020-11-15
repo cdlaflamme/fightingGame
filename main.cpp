@@ -24,7 +24,7 @@ int main(){
 	
 	loadScene(SceneList::MainMenu);
 	window.requestFocus();
-	
+	window.setKeyRepeatEnabled(false);
 	//consider implementing the following pattern:
 	//for now, anything that cares about the time will handle its own clocks
 	//sf::Clock clock;
