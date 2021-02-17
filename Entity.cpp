@@ -104,7 +104,7 @@ class MainMenuController : public Entity{
 						//play
 						if (cursorPos == 0){
 							deleteThis = true; //leave main menu
-							loadScene(SceneList::FightScene);
+							loadScene(Scene::FightScene);
 						}
 						//quit
 						if (cursorPos == 1){
@@ -137,7 +137,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Fighter : public Entity{
-	//class for all fighters; implements all common mechanics, leaving character-specific mechanics to FighterFunctions
+	//class for all fighters; implements all common mechanics, leaving character-specific mechanics/state transitions to FighterModules
 	sf::Sprite fighterSprite;
 	sf::Vector2f fighterPos;
 	FighterModule *fighterModule;
@@ -150,8 +150,8 @@ class Fighter : public Entity{
 	static const int sprite_x = 210; //tile size of single sprites in sprite sheet. used to split sheet
 	static const int sprite_y = 225;
 	
-	void setSpriteIndex(int i){
-		fighterSprite.setTextureRect(sf::IntRect(0, sprite_y*i, sprite_x, sprite_y));
+	void setSpriteIndex(int reel, int index){ //reel r, index i
+		fighterSprite.setTextureRect(sf::IntRect(sprite_x*index, reel*sprite_y, sprite_x, sprite_y)); //top left x, top left y, width, height
 	}
 	
 	public:
@@ -176,7 +176,7 @@ class Fighter : public Entity{
 		fighterPos.x = (left?100:Game::SCREEN_X-sprite_x-100);
 
 		//set initial sprite rectangle
-		setSpriteIndex(0);
+		setSpriteIndex(0,0);
 		Game::drawQ->add(fighterSprite, DrawLayers::stage);
 	}
 	
@@ -184,7 +184,7 @@ class Fighter : public Entity{
 		//update state based on recent input
 		currentState = fighterModule->getNextState(eventList);
 		//set sprite
-		setSpriteIndex(currentState.spriteIndex);
+		setSpriteIndex(currentState.spriteReel, currentState.spriteIndex);
 		//move fighter
 		fighterPos += currentState.movement;
 		fighterSprite.setPosition(fighterPos);

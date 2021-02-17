@@ -3,25 +3,25 @@
 #include "DrawQ.h"
 #include "Entity.cpp"
 
-int loadScene(SceneList::Scene scene){
-	//TODO clear entity list/drawQ, put up loading screen
+int loadScene(Scene scene){
+	//TODO clear entity list, put up loading screen
 	
 	Game::drawQ->clear();
 	
 	//load new scene
 	switch (scene){
-		case SceneList::MainMenu:{
+		case Scene::MainMenu:{
 			//instantiate main menu controller
 			MainMenuController *mainMenu = new MainMenuController();
 			Game::entityList->push_back(mainMenu);
 		}
 		break;
 			
-		case SceneList::CharSelect:
-			
+		case Scene::CharSelect:
+			//TODO
 			break;
 			
-		case SceneList::FightScene:{
+		case Scene::FightScene:{
 			//instantiate stage
 			FightStage* stage = new FightStage(Game::stageID);
 			Game::entityList->push_back(stage);

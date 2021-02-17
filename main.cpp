@@ -22,7 +22,7 @@ int main(){
 
 	//#############################
 	
-	loadScene(SceneList::MainMenu);
+	loadScene(Scene::MainMenu);
 	window.requestFocus();
 	window.setKeyRepeatEnabled(false);
 	//consider implementing the following pattern:
